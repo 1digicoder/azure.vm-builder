@@ -33,7 +33,7 @@
         "RemoteDisplay.vnc.enabled": "false",
         "RemoteDisplay.vnc.port": "5900",
         "memsize": "2048",
-        "numvcpus": "2",
+        "numvcpus": "1",
         "scsi0.virtualDev": "lsisas1068"
       }
     },
@@ -76,7 +76,7 @@
           "modifyvm",
           "{{.Name}}",
           "--cpus",
-          "2"
+          "1"
         ]
       ]
     },
@@ -163,6 +163,6 @@
     "iso_checksum_type": "sha1",
     "iso_checksum": "1486EC12B04D7B44BB6CB7D1D2AE52A94C891A10",
     "autounattend": "./answer_files/10/Autounattend.xml",
-    "disk_size": "61440"
+    "disk_size": "122880"
   }
 }
