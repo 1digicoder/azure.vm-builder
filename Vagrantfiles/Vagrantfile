@@ -1,0 +1,98 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure("2") do |config| 
+  config.vm.box = "w10_1703"
+  config.vm.network :forwarded_port, guest: 5985, host: 5985, id: "winrm", auto_correct: true
+  config.vm.communicator = "winrm"
+  config.winrm.username = "vagrant"
+  config.winrm.password = "vagrant"
+
+  config.vm.guest = :windows
+  config.windows.halt_timeout = 15
+
+  config.vm.synced_folder ".", "/vagrant", disabled: true
+  config.vm.synced_folder "..", "/vagrant"
+
+  config.vm.provision "shell", path: "scripts/install-chocolatey.ps1"
+
+  #Set default values for all providers
+
+  #Uncomment and when this provider's box has been uploaded
+  #config.vm.provider :virtualbox do |v, override|
+  #  override.vm.box = "https://spkvmbuilderhost.blob.core.windows.net/boxes/w10_1703_virtualbox_1504754235.box"
+  #  v.customize ["modifyvm", :id, "--memory", 2048]
+  #  v.customize ["modifyvm", :id, "--cpus", 1]
+  #  v.customize ["setextradata", "global", "GUI/SuppressMessages", "all" ]
+  #end
+
+  config.vm.provider :vmware_fusion do |v, override|
+    override.vm.box_url = "https://spkvmbuilderhost.blob.core.windows.net/boxes/w10_1703_vmware_1504754235.box"
+    v.gui = true
+    v.vmx["memsize"] = "2048"
+    v.vmx["numvcpus"] = "1"
+    v.vmx["ethernet0.virtualDev"] = "vmxnet3"
+    v.vmx["RemoteDisplay.vnc.enabled"] = "false"
+    v.vmx["RemoteDisplay.vnc.port"] = "5900"
+    v.vmx["scsi0.virtualDev"] = "lsisas1068"
+    v.vmx["gui.fitguestusingnativedisplayresolution"] = "TRUE"
+    v.vmx["mks.enable3d"] = "TRUE"
+    v.vmx["mks.forceDiscreteGPU"] = "TRUE"
+    v.vmx["gui.fullscreenatpoweron"] = "TRUE"
+    v.vmx["gui.viewmodeatpoweron"] = "fullscreen"
+    v.vmx["gui.lastPoweredViewMode"] = "fullscreen"
+    v.vmx["sound.startconnected"] = "FALSE"
+    v.vmx["sound.present"] = "FALSE"
+    v.vmx["sound.autodetect"] = "TRUE"
+    v.enable_vmrun_ip_lookup = false
+    end
+
+    config.vm.provider :vmware_workstation do |v, override|
+      override.vm.box = "https://spkvmbuilderhost.blob.core.windows.net/boxes/w10_1703_vmware_1504754235.box"
+      v.gui = true
+      v.vmx["memsize"] = "2048"
+      v.vmx["numvcpus"] = "1"
+      v.vmx["ethernet0.virtualDev"] = "vmxnet3"
+      v.vmx["RemoteDisplay.vnc.enabled"] = "false"
+      v.vmx["RemoteDisplay.vnc.port"] = "5900"
+      v.vmx["scsi0.virtualDev"] = "lsisas1068"
+      v.enable_vmrun_ip_lookup = false
+    end
+
+    config.vm.provider "hyperv" do |v, override|
+      override.vm.box = "https://spkvmbuilderhost.blob.core.windows.net/boxes/w10_1703_hyperv_1504754235.box"
+      v.cpus = 1
+      v.maxmemory = 2048
+      v.differencing_disk = true
+    end
+
+  config.vm.define "container_host" do |container_host|
+    config.vm.provision "shell", path: "scripts/install-containers.ps1"
+    config.vm.provision "shell", path: "scripts/install-hyperv.ps1"
+    config.vm.provision "shell", path: "scripts/install-docker.ps1"
+    config.vm.provision "shell", path: "scripts/install-docker.ps1"
+    config.vm.provision "shell", path: "scripts/install-git.ps1"
+
+    ["vmware_fusion", "vmware_workstation"].each do |provider|
+      config.vm.provider provider do |v|
+        v.gui = true
+        v.enable_vmrun_ip_lookup = false
+        v.vmx["memsize"] = "6144"
+        v.vmx["numvcpus"] = "2"
+        v.vmx["vhv.enable"] = "TRUE" #Allow nested Hyper-V VMs
+      end
+    end
+    
+      config.vm.provider "hyperv" do |v|
+        v.cpus = 2
+        v.maxmemory = 6144
+        v.enable_virtualization_extensions = true #Allow nester Hyper-V VMs
+      end
+  end
+
+  config.vm.define "default" do |default|
+    # basic 1CPU 2GB machine
+  end
+end
