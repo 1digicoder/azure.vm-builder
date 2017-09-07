@@ -72,7 +72,6 @@ Vagrant.configure("2") do |config|
     config.vm.provision "shell", path: "scripts/install-containers.ps1"
     config.vm.provision "shell", path: "scripts/install-hyperv.ps1"
     config.vm.provision "shell", path: "scripts/install-docker.ps1"
-    config.vm.provision "shell", path: "scripts/install-docker.ps1"
     config.vm.provision "shell", path: "scripts/install-git.ps1"
 
     ["vmware_fusion", "vmware_workstation"].each do |provider|
