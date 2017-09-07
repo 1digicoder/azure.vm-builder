@@ -103,11 +103,12 @@
 	    "./scripts/microsoft-updates.bat",
 	    "./scripts/win-updates.ps1"
 	  ],
-	  "ram_size": 2048,
-	  "cpu": 1,
-	  "switch_name":"LAN",
-	  "enable_secure_boot":true,
-	  "enable_virtualization_extensions":true
+	  "ram_size": 4096,
+	  "cpu": 2,
+	  "switch_name":"{{user `hyperv_switchname`}}",
+    "enable_secure_boot":true,
+    "enable_virtualization_extensions":true,
+    "enable_mac_spoofing":true
     }
   ],
   "provisioners": [
